@@ -36,9 +36,9 @@ const UserPhotos = () => {
         // Check if the token is available in localStorage
         const storedToken = localStorage.getItem('accessToken');
         if (storedToken) {
-          dispatch(setToken(storedToken));
+            dispatch(setToken(storedToken));
         }
-      }, [dispatch]);
+    }, [dispatch]);
 
     useEffect(() => {
         // Fetch authenticated user's photos
@@ -64,10 +64,17 @@ const UserPhotos = () => {
     };
 
     const handleUpload = () => {
-        if (selectedFile) {
+        if (!selectedFile || !newPhotoTitle) {
+            // Display error modal if either the file or title is empty
+            setError('Photo and its title are required.');
+            setSelectedFile(null);
+            setNewPhotoTitle('');
+            setOpenModal(false);
+            setOpenErrorModal(true);
+        } else {
             const formData = new FormData();
             formData.append('photo', selectedFile);
-            formData.append('title', newPhotoTitle); // Use the input title
+            formData.append('title', newPhotoTitle);
 
             axios.post(UPLOAD_PHOTO, formData, {
                 headers: {
@@ -76,19 +83,20 @@ const UserPhotos = () => {
                 },
             })
                 .then(response => {
-                    // console.log(response.data);
-
-                    // Update the userPhotos state with the newly uploaded photo
                     setUserPhotos(prevPhotos => [...prevPhotos, response.data.data]);
+                    setSelectedFile(null);
+                    setNewPhotoTitle('');
+                    setOpenModal(false);
                 })
                 .catch(error => {
                     setError(error.response.data.message);
+                    setOpenModal(false);
                     setOpenErrorModal(true);
                     console.error('Error uploading photo:', error);
                 });
         }
-        setOpenModal(false);
     };
+
 
     const handleTitleChange = (e) => {
         setNewPhotoTitle(e.target.value);
@@ -102,7 +110,7 @@ const UserPhotos = () => {
         // Optional: Show a loading spinner or message while fetching data
         return (
             <Box sx={{ display: 'flex' }}>
-                <CircularProgress color="success" sx={{margin: 'auto', mt: 5}} />
+                <CircularProgress color="success" sx={{ margin: 'auto', mt: 5 }} />
             </Box>
         );
     }
@@ -132,6 +140,7 @@ const UserPhotos = () => {
                             <strong>Choose photo to upload</strong>
                         </Typography>
                         <TextField
+                            required
                             variant="outlined"
                             margin="normal"
                             fullWidth
@@ -141,15 +150,16 @@ const UserPhotos = () => {
                             sx={{ mt: 5 }}
                         />
                         <TextField
-                        variant="outlined"
-                        margin="normal"
-                        fullWidth
-                        label="Title"
-                        name="title"
-                        value={newPhotoTitle}
-                        onChange={handleTitleChange}
-                        sx={{ mt: 2 }}
-                    />
+                            required
+                            variant="outlined"
+                            margin="normal"
+                            fullWidth
+                            label="Title"
+                            name="title"
+                            value={newPhotoTitle}
+                            onChange={handleTitleChange}
+                            sx={{ mt: 2 }}
+                        />
                         <Button onClick={handleUpload} sx={{ mt: 2 }}>Upload</Button>
                         <Button onClick={handleClose} sx={{ mt: 2 }}>Cancel</Button>
                     </Box>
@@ -165,9 +175,9 @@ const UserPhotos = () => {
                                     src={`${API_URL}${photo.url}`}
                                     alt={photo.title}
                                     className="card-img-top img-thumbnail"
-                                    style={{height: '5rem'}}
+                                    style={{ height: '5rem' }}
                                 />
-                                <div className="card-body" style={{height: '3.8rem'}}>
+                                <div className="card-body" style={{ height: '3.8rem' }}>
                                     <h6 className="card-title">{photo.title}</h6>
                                 </div>
                             </div>
@@ -177,20 +187,20 @@ const UserPhotos = () => {
             </div>
 
             {error && <Modal
-                        open={openErrorModal}
-                        aria-labelledby="modal-modal-title"
-                        aria-describedby="modal-modal-description"
-                    >
-                        <Box sx={style}>
-                            <Typography id="modal-modal-title" variant="h6" component="h2" sx={{ color: 'red' }}>
-                                <strong>Error</strong>
-                            </Typography>
-                            <Typography id="modal-modal-description" sx={{ mt: 2, fontSize: '18px' }}>
-                                {error}
-                            </Typography>
-                            <Button onClick={handleCloseError} sx={{ mt: 2 }}>Try again!</Button>
-                        </Box>
-                    </Modal>}
+                open={openErrorModal}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2" sx={{ color: 'red' }}>
+                        <strong>Error</strong>
+                    </Typography>
+                    <Typography id="modal-modal-description" sx={{ mt: 2, fontSize: '18px' }}>
+                        {error}
+                    </Typography>
+                    <Button onClick={handleCloseError} sx={{ mt: 2 }}>Try again!</Button>
+                </Box>
+            </Modal>}
         </div>
     );
 };
