@@ -95,6 +95,7 @@ const PhotoDetails = () => {
                     <Rating value={photoDetails.totalRate} precision={0.5} readOnly sx={{ marginLeft: '0.75rem' }} />
                 ) : null}
             </h2>
+            <h6>Uploaded by {photoDetails.owner.name}</h6>
             <img
                 src={`${API_URL}${photoDetails.url}`}
                 alt={photoDetails.title}
@@ -102,7 +103,7 @@ const PhotoDetails = () => {
             />
             {photoDetails.caption ? <p>{photoDetails.caption}</p> : null}
 
-            <Typography component="legend" sx={{ mb: 2 }}>Your rate</Typography>
+            <Typography component="legend" sx={{ my: 2, fontSize: '18px' }}>Your rate</Typography>
             <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: 'auto', marginTop: '2rem', marginBottom: '2rem' }}>
                 <Rating
                     name="Your rate"
