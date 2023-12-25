@@ -11,6 +11,7 @@ const SignIn = () => {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
+        confirmPassword: ''
     });
 
     const [error, setError] = useState('');
@@ -37,10 +38,16 @@ const SignIn = () => {
             ...prevData,
             [name]: value,
         }));
-    };
+    };    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+    
+        if (formData.password !== formData.confirmPassword) {
+            setError('Password and confirmation do not match');
+            setOpenModal(true);
+            return;
+        }
 
         try {
             const response = await axios.post(SIGNIN_URL, { email: formData.email, password: formData.password });
@@ -52,6 +59,7 @@ const SignIn = () => {
             navigate(ALL_PHOTOS);
 
         } catch (e) {
+            console.log(e);
             if (e.response.status === 401) {
                 setError(e.response.data.message);
                 setOpenModal(true);
@@ -99,6 +107,17 @@ const SignIn = () => {
                         name="password"
                         type="password"
                         value={formData.password}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        label="Confirm Password"
+                        name="confirmPassword"
+                        type="password"
+                        value={formData.confirmPassword}
                         onChange={handleChange}
                     />
                     <Button
